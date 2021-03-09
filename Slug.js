@@ -45,20 +45,41 @@ module.exports = (Model, options) => {
                 }
             }
         });
-        if (!similarInstances.length || (similarInstances.length && similarInstances.length===1)) {
+        if (!similarInstances.length) {
             return baseSlug;
         }
-//         _.forEach(similarInstances, similarInstance => {
-//             let match = similarInstance.slug.match(regex), count = 0;
-//             if (match[1]) {
-//                 count = parseInt(match[1].replace('-', ''));
-//             }
-//             if (count > maxCount) {
-//                 maxCount = count;
-//             }
-//         });
-        const leastFreeCount = similarInstances.length - 1;
-        return baseSlug + '-' + (leastFreeCount);
+        const usedSlugMap = {};
+        let maxCount = 0;
+        _.forEach(similarInstances, similarInstance => {
+            let match = similarInstance.slug.match(regex), count = 0;
+            if (match[1]) {
+                count = parseInt(match[1].replace('-', ''));
+                usedSlugMap[count] = 1;
+            }
+            if (count > maxCount) {
+                maxCount = count;
+            }
+        });
+
+        let leastFreeSlug = 0;
+        let leaseFreeSlugSet = false;
+        
+        Array(maxCount).fill(0).reduce((_,curVal) => {
+            if(leaseFreeSlugSet){
+                return leastFreeSlug;
+            }
+            if(!usedSlugMap[curVal+1]){
+                leaseFreeSlugSet = true;
+                leastFreeSlug = curVal;
+            }
+            return leastFreeSlug;
+        });
+        
+        if(!leastFreeSlug){
+            return baseSlug;
+        }
+        
+        return baseSlug + '-' + (leastFreeSlug);
     }
 
     Model.observe('before save', async (ctx) => {
