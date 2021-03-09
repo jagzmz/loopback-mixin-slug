@@ -48,38 +48,60 @@ module.exports = (Model, options) => {
         if (!similarInstances.length) {
             return baseSlug;
         }
-        const usedSlugMap = {};
+        
         let maxCount = 0;
+        const slugMap = {};
         _.forEach(similarInstances, similarInstance => {
             let match = similarInstance.slug.match(regex), count = 0;
             if (match[1]) {
                 count = parseInt(match[1].replace('-', ''));
-                usedSlugMap[count] = 1;
             }
             if (count > maxCount) {
                 maxCount = count;
             }
+            slugMap[similarInstance.slug] = {
+                id: similarInstance.id.toString(),
+                slug: similarInstance.slug
+            };
         });
 
-        let leastFreeSlug = 0;
-        let leaseFreeSlugSet = false;
-        
-        Array(maxCount).fill(0).reduce((_,curVal) => {
-            if(leaseFreeSlugSet){
-                return leastFreeSlug;
+        if(!slugMap[baseSlug]) return baseSlug;
+
+        // if(instance.id){
+        //     const instanceFromSimilar = _.find(similarInstances, si => si.id.toString()===instance.id.toString());
+        //     if(instanceFromSimilar && instanceFromSimilar.slug === baseSlug){
+        //         return baseSlug;
+        //     }
+        // }
+
+        let leastFreeSlugCount = 0;
+        for(let i = 0; i <= maxCount + 1; i++){
+            let _slug = i? `-${i}` : '';
+            let slugMapVal = slugMap[baseSlug + _slug];
+            if(slugMapVal){
+                if(slugMapVal.id.toString() === (instance.id || '').toString()){
+                    return slugMapVal.slug;
+                }
+                continue;
             }
-            if(!usedSlugMap[curVal+1]){
-                leaseFreeSlugSet = true;
-                leastFreeSlug = curVal;
-            }
-            return leastFreeSlug;
-        });
-        
-        if(!leastFreeSlug){
-            return baseSlug;
+            leastFreeSlugCount = i;
+            break;
         }
+
+        let slugSuffix = leastFreeSlugCount? `-${leastFreeSlugCount}` : '';
         
-        return baseSlug + '-' + (leastFreeSlug);
+        let instanceSlug = baseSlug + slugSuffix;
+        
+        // const instanceFromSimilar = _.find(similarInstances, si => si.id.toString()===(instance.id || '').toString());
+
+        // if(instanceFromSimilar){
+        //     let slugMapValue = slugMap[instanceFromSimilar.slug];
+        //     if (slugMapValue.slug.toString() === instanceSlug){
+        //         return instanceFromSimilar.slug;
+        //     }
+        // }
+                
+        return instanceSlug; //+ '-' + (leastFreeSlugCount);
     }
 
     Model.observe('before save', async (ctx) => {
