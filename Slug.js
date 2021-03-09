@@ -45,20 +45,20 @@ module.exports = (Model, options) => {
                 }
             }
         });
-        if (!similarInstances.length) {
+        if (!similarInstances.length || (similarInstances.length && similarInstances.length===1)) {
             return baseSlug;
         }
-        let maxCount = 0;
-        _.forEach(similarInstances, similarInstance => {
-            let match = similarInstance.slug.match(regex), count = 0;
-            if (match[1]) {
-                count = parseInt(match[1].replace('-', ''));
-            }
-            if (count > maxCount) {
-                maxCount = count;
-            }
-        });
-        return baseSlug + '-' + (maxCount + 1);
+//         _.forEach(similarInstances, similarInstance => {
+//             let match = similarInstance.slug.match(regex), count = 0;
+//             if (match[1]) {
+//                 count = parseInt(match[1].replace('-', ''));
+//             }
+//             if (count > maxCount) {
+//                 maxCount = count;
+//             }
+//         });
+        const leastFreeCount = similarInstances.length - 1;
+        return baseSlug + '-' + (leastFreeCount);
     }
 
     Model.observe('before save', async (ctx) => {
