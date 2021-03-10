@@ -67,13 +67,6 @@ module.exports = (Model, options) => {
 
         if(!slugMap[baseSlug]) return baseSlug;
 
-        // if(instance.id){
-        //     const instanceFromSimilar = _.find(similarInstances, si => si.id.toString()===instance.id.toString());
-        //     if(instanceFromSimilar && instanceFromSimilar.slug === baseSlug){
-        //         return baseSlug;
-        //     }
-        // }
-
         let leastFreeSlugCount = 0;
         for(let i = 0; i <= maxCount + 1; i++){
             let _slug = i? `-${i}` : '';
@@ -91,17 +84,8 @@ module.exports = (Model, options) => {
         let slugSuffix = leastFreeSlugCount? `-${leastFreeSlugCount}` : '';
         
         let instanceSlug = baseSlug + slugSuffix;
-        
-        // const instanceFromSimilar = _.find(similarInstances, si => si.id.toString()===(instance.id || '').toString());
-
-        // if(instanceFromSimilar){
-        //     let slugMapValue = slugMap[instanceFromSimilar.slug];
-        //     if (slugMapValue.slug.toString() === instanceSlug){
-        //         return instanceFromSimilar.slug;
-        //     }
-        // }
-                
-        return instanceSlug; //+ '-' + (leastFreeSlugCount);
+          
+        return instanceSlug;
     }
 
     Model.observe('before save', async (ctx) => {
