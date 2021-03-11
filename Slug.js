@@ -30,12 +30,15 @@ module.exports = (Model, options) => {
         return /^[a-zA-Z0-9]+([a-zA-Z0-9_-])*$/.test(slug);
     }
 
+    const stripEmojisFn = (name) =>{
+        if(!stripEmojis) return name;
+        return name.replace(emojiRegex(),'').trim();
+    }
+
     Model.getBaseSlug = (instance) => {
-        let slug = _.snakeCase(_.trim(_.join(_.filter(_.map(fields, field => instance[field])), '_')));
+        
+        let slug = _.snakeCase(_.trim(_.join(_.filter(_.map(fields, field => stripEmojisFn(instance[field]))), '_')));
         slug = slug === '_' ? '0' : slug;
-        if(stripEmojis){
-            slug = slug.replace(emojiRegex(),'').trim();
-        }
         slug = slug.replace(/_/g, '-');
         return slug;
     }
