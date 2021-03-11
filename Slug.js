@@ -1,8 +1,10 @@
 'use strict';
 const _ = require('lodash');
+const emojiRegex = require("emoji-regex");
 
 module.exports = (Model, options) => {
     let fields = options.fields || ['name'];
+    const stripEmojis = options.stripEmojis;
     if (_.isString(fields)) {
         fields = [fields];
     }
@@ -31,6 +33,9 @@ module.exports = (Model, options) => {
     Model.getBaseSlug = (instance) => {
         let slug = _.snakeCase(_.trim(_.join(_.filter(_.map(fields, field => instance[field])), '_')));
         slug = slug === '_' ? '0' : slug;
+        if(stripEmojis){
+            slug = slug.replace(emojiRegex(),'').trim();
+        }
         slug = slug.replace(/_/g, '-');
         return slug;
     }
