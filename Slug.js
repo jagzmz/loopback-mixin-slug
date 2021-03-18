@@ -111,7 +111,9 @@ module.exports = (Model, options) => {
         let createNewSlug = false;
         if (!ctx.isNewInstance) {
             let prevInstance = await Model.findOne({ where });
-            createNewSlug = !prevInstance.slug && !instance.slug;
+            if(prevInstance){
+                createNewSlug = !prevInstance.slug && !instance.slug;   
+            }
         }
         else {
             createNewSlug = !instance.slug;
