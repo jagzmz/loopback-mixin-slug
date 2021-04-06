@@ -30,7 +30,7 @@ module.exports = (Model, options) => {
         return /^[a-zA-Z0-9]+([a-zA-Z0-9_-])*$/.test(slug);
     }
 
-    const stripEmojisFn = (name) =>{
+    const stripEmojisFn = (name = '') =>{
         if(!stripEmojis) return name;
         return name.replace(emojiRegex(),'').trim();
     }
